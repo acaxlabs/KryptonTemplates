@@ -1,0 +1,180 @@
+﻿<#@ template language="C#" HostSpecific="True" #>
+<#@ output extension=".cshtml" #>
+<#@ include file="Imports.include.t4" #>
+@model IEnumerable<#= "<" + ViewDataTypeName + ">" #>
+<#
+    // The following chained if-statement outputs the file header code and markup for a partial view, a view using a layout page, or a regular view.
+    if(IsPartialView) {
+#>
+
+<#
+    } else if(IsLayoutPageSelected) {
+#>
+
+@{
+    ViewBag.Title = "<#= ViewName#>";
+<#
+        if (!String.IsNullOrEmpty(LayoutPageFile)) {
+#>
+    Layout = "<#= LayoutPageFile #>";
+<#
+        }
+#>
+}
+
+<#
+}             else {
+#>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title><#= ViewName #></title>
+</head>
+<body>
+<#
+        PushIndent("");
+    }
+    var name = ViewDataTypeShortName;
+    var modelName = name.ToLower();
+#>
+<link rel="import" href="~/Content/components/polymer/polymer.html" />
+<link rel="import" href="~/Content/components/paper-item/paper-item.html" />
+<link rel="import" href="~/Content/components/paper-checkbox/paper-checkbox.html" />
+<link rel="import" href="~/Content/components/paper-icon-button/paper-icon-button.html" />
+<link rel="import" href="~/Content/components/iron-icon/iron-icon.html" />
+<link rel="import" href="~/Content/components/iron-icons/iron-icons.html" />
+<link rel="import" href="~/Content/components/iron-icons/social-icons.html" />
+<link rel="import" href="~/Content/components/xenon-photo-card/xenon-photo-card.html" />
+<link rel="import" href="~/Content/components/xenon-table/xenon-table-column.html" />
+<link rel="import" href="~/Content/components/xenon-table/xenon-table.html" />
+<link rel="import" href="~/Content/components/xenon-table/xenon-table-cell.html" />
+<link rel="import" href="~/Content/components/xenon-date/xenon-date.html" />
+<link rel="import" href="~/Content/components/xenon-menu-button/xenon-menu-button.html" />
+<link rel="import" href="~/Content/components/xenon-photo-card/xenon-photo-card.html" />
+<link rel="import" href="~/Content/components/krypton-list/krypton-list.html" />
+<link rel="import" href="~/Content/components/krypton-entity/krypton-entity.html" />
+<dom-module id="list-controller">
+    <template>
+            <style>
+                .filter-content > div { margin-bottom: 16px; }
+            </style>
+            <krypton-list id="krypton"
+                          filter-info="{{filters}}"
+                          sort="{{sort}}"
+                          page-info="{{pageInfo}}"
+                          base-url="/"
+                          path="api/<#= ViewDataTypeShortName #>s"
+                          loading="{{loading}}">
+            </krypton-list>
+    <xenon-section>
+         <xenon-table id="ktable"
+                                 heading="  <#= ViewDataTypeShortName #>s"
+                                 items="{{listItems}}"
+                                 sort="{{sort}}"
+                                 page-info="{{pageInfo}}"
+                                 selected-item="{{selected}}"
+                                 loading="{{loading}}">
+                        <actions>
+                            <xenon-menu-button icon="add" title="Add new <#= ViewDataTypeShortName #>s" on-tap="<#= modelName #>Create"></xenon-menu-button>
+                            <xenon-menu-button icon="more-vert" title="More options">
+                                <paper-item on-tap=""><iron-icon icon="cloud-download"></iron-icon><span style="padding-left:4px; padding-right:4px;">Export</span></paper-item>
+                            </xenon-menu-button>
+                        </actions>
+                        <initial>
+                            <div style="display:flex; justify-content:center; align-items:center; flex-direction:column; color:gainsboro;">
+                                <iron-icon icon="social:group" style="width:144px; height:144px;"></iron-icon>
+                                <div style="font-size:36px;">
+                                    <#= ViewDataTypeShortName #>s will appear here
+                                </div>
+                            </div>
+                        </initial>
+                            <columns>
+                            <#                            IEnumerable<PropertyMetadata> properties = ModelMetadata.Properties;                            foreach (PropertyMetadata property in properties) {
+                            if (property.Scaffold && !property.IsPrimaryKey && !property.IsForeignKey) {
+                            #>                            <#
+                            // We do not want to show any association properties for which there is
+                            // no associated foreign key.
+                            if (property.IsAssociation && GetRelatedModelMetadata(property) == null) continue;                            var propName = GetValueExpression(property).Substring(0,1).ToLower()  +  GetValueExpression(property).Substring(1);
+                            #>
+
+                                <xenon-table-column heading="<#= GetValueExpression(property)#>">
+                                    <template>
+                                        {{item.<#= propName #>}}
+                                    </template>
+                                </xenon-table-column>
+
+                            <#
+                                }
+                            }
+                            #>
+                            </columns>
+                        <empty>No <#= ViewDataTypeShortName #>s were found.</empty>
+                    </xenon-table>
+    </xenon-section>
+    </template>
+    <script>
+    HTMLImports.whenReady(function () {
+            Polymer({
+                is: "list-controller",
+            properties: {
+                selected: { type: Array, value: [] },
+                listItems: { type: Array, value: [] },
+            },
+            listeners: {
+                "krypton-list": "_onKryptonList",
+                "selected-item": "_selectedItemsChanged"
+            },
+            _getPropertyValue: function (item) {
+                return Object.values(item);
+            },
+            _selectedItemsChanged: function (e) {
+                if (!e.detail) return
+                this.set("selected", e.detail);
+            },
+            _onKryptonList: function (e) {
+                if (!e.detail) return
+                this.set("listItems", e.detail);
+            },
+            <#= modelName #>Create: function () {
+                window.location.href = "/<#= ViewDataTypeShortName #>s/Create"
+            },
+                  });
+        });
+    </script>
+</dom-module>
+<list-controller></list-controller>
+
+<#
+    // The following code closes the tag used in the case of a view using a layout page and the body and html tags in the case of a regular view page
+#>
+<#
+    if(!IsPartialView && !IsLayoutPageSelected) {
+        ClearIndent();
+#>
+</body>
+</html>
+<#
+    }
+#>
+<#@ include file="ModelMetadataFunctions.cs.include.t4" #>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+       
+				

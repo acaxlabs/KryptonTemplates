@@ -1,0 +1,54 @@
+﻿<#@ template language="C#" HostSpecific="True" #>
+<#@ output extension=".cshtml" #>
+<#@ include file="Imports.include.t4" #>
+<#
+    PushIndent("    ");
+#>
+
+<link rel="import" href="~/Content/components/polymer/polymer.html" />
+<link rel="import" href="~/Content/components/krypton-entity/krypton-entity.html" />
+<link rel="import" href="~/Content/components/xenon-layout/xenon-section.html" />
+<link rel="import" href="~/Content/components/xenon-photo-card/xenon-photo-card.html" />
+<link rel="import" href="~/Content/components/xenon-layout/xenon-field-group.html" />
+<link rel="import" href="~/Content/components/xenon-layout/xenon-field.html" />
+<link rel="import" href="~/Content/components/paper-input/paper-input.html" />
+<link rel="import" href="~/Content/components/paper-button/paper-button.html" />
+<dom-module id="editor-controller">
+    <template>
+        <krypton-entity id="krypton"
+                        key="{{id}}"
+                        base-url="/api/"
+                        loading="{{loading}}"
+                        item="{{item}}">
+        </krypton-entity>
+        <xenon-section>
+            <xenon-photo-card heading="Foos Controller" loading="{{loading}}">
+                <main>
+                <xenon-field-group>
+                    <paper-input label="" value="{{item.}}"></paper-input>
+                </xenon-field-group>
+                </main>
+                    <buttons>
+                        <spacer></spacer>
+                        <paper-button on-click="_cancel">cancel</paper-button>
+                        <paper-button class="primary" on-click="">save</paper-button>
+                    </buttons>
+            </xenon-photo-card>
+        </xenon-section>
+    </template>
+    <script>
+        HTMLImports.whenReady(function () {
+            Polymer({
+                is: "foo-controller",
+                properties: {
+                    /* This is an example property */
+                    item: { type: Object, notify: true, observer: "_setItem" },
+                },
+                
+            });
+        });
+    </script>
+</dom-module>
+<foo-controller></foo-controller>
+
+

@@ -1,0 +1,99 @@
+﻿<#@ template language="C#" HostSpecific="True" #>
+<#@ output extension=".cshtml" #>
+<#@ include file="Imports.include.t4" #>
+<#
+if (!String.IsNullOrEmpty(LayoutPageFile)) {
+#>
+@{
+    Layout = "<#= LayoutPageFile#>";
+}
+<#
+}
+#>
+<#
+else {
+#>
+<#
+    PushIndent("");
+}
+
+#>
+<link rel="import" href="~/Content/components/polymer/polymer.html" />
+<link rel="import" href="~/Content/components/paper-icon-button/paper-icon-button.html" />
+<link rel="import" href="~/Content/components/iron-icon/iron-icon.html" />
+<link rel="import" href="~/Content/components/iron-icons/iron-icons.html" />
+<link rel="import" href="~/Content/components/iron-icons/social-icons.html" />
+<link rel="import" href="~/Content/components/xenon-photo-card/xenon-photo-card.html" />
+<link rel="import" href="~/Content/components/xenon-date/xenon-date.html" />
+<link rel="import" href="~/Content/components/xenon-layout/xenon-section.html" />
+<link rel="import" href="~/Content/components/xenon-layout/xenon-field-group.html" />
+<link rel="import" href="~/Content/components/xenon-layout/xenon-field.html" />
+<link rel="import" href="~/Content/components/xenon-menu-button/xenon-menu-button.html" />
+<link rel="import" href="~/Content/components/xenon-photo-card/xenon-photo-card.html" />
+<link rel="import" href="~/Content/components/xenon-querystring/xenon-querystring.html" />
+<link rel="import" href="~/Content/components/krypton-entity/krypton-entity.html" />
+<dom-module id="details-controller">
+    <template>
+        <xenon-querystring key="id" value="{{id}}"></xenon-querystring>
+        <krypton-entity id="krypton"
+                        key="{{id}}"
+                        base-url="/api/"
+                        loading="{{loading}}"
+                        item="{{item}}">
+        </krypton-entity>
+        <xenon-section>
+            <xenon-photo-card heading="<#= ViewDataTypeShortName #>s Details" loading="{{loading}}">
+                <actions>
+                    <iron-icon style="margin:4px;" icon="create" title="edit" on-tap="showEdit"></iron-icon>
+                    <iron-icon style="margin:4px;" icon="delete" title="delete" on-tap="showDelete"></iron-icon>
+                </actions>
+                <main>
+                    <xenon-field-group>
+                        <#                            IEnumerable<PropertyMetadata> properties = ModelMetadata.Properties;                            foreach (PropertyMetadata property in properties) {
+                            if (property.Scaffold && !property.IsPrimaryKey && !property.IsForeignKey) {
+                        #>
+                        <#
+                            if (property.IsAssociation && GetRelatedModelMetadata(property) == null) continue;                            var propName = GetValueExpression(property).Substring(0,1).ToLower()  +  GetValueExpression(property).Substring(1);
+                        #>
+                 
+                            <xenon-field label="<#= GetValueExpression(property)#>">{{item.<#= propName #>}}</xenon-field>
+                  
+                        <#
+                            }
+                        }
+                        #>
+                    </xenon-field-group>
+                </main>
+            </xenon-photo-card>
+        </xenon-section>
+    </template>
+    <script>
+        HTMLImports.whenReady(function () {
+            Polymer({
+                is: "details-controller",
+                properties: {
+                    /* This is an example property */
+                    id: { type: String, notify: true, observer: "_initRequest" },
+                    item: { type: Object, notify: true, observer: "_setItem" },
+                },
+                _setItem: function (item) {
+                    this.set("item", item);
+                },
+                /* fired when example property changes */
+                _initRequest: function (id) {
+                    this.$.krypton.getUrl = "/api/<#= ViewDataTypeShortName #>s/Details?id="
+                    this.$.krypton.getItem();
+                },
+                showEdit: function () {
+                    window.location.href = "/<#= ViewDataTypeShortName #>s/Edit?id=" + this.id;
+                },
+                showDelete: function () {
+                    //window.location.href = "/<#= ViewDataTypeShortName #>s/Delete?id=" + this.id;
+                    //Or show a pop-up
+                },
+            });
+        });
+    </script>
+</dom-module>
+<details-controller></details-controller>
+<#@ include file="ModelMetadataFunctions.cs.include.t4" #>

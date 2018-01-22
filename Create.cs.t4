@@ -1,0 +1,80 @@
+﻿<#@ template language="C#" HostSpecific="True" #>
+<#@ output extension=".cshtml" #>
+<#@ include file="Imports.include.t4" #>
+<#
+// "form-control" attribute is only supported for all EditorFor() in System.Web.Mvc 5.1.0.0 or later versions, except for checkbox, which uses a div in Bootstrap
+string boolType = "System.Boolean";
+Version requiredMvcVersion = new Version("5.1.0.0");
+bool isControlHtmlAttributesSupported = MvcVersion >= requiredMvcVersion;
+// The following chained if-statement outputs the file header code and markup for a partial view, a view using a layout page, or a regular view.
+    PushIndent("");
+#>
+<link rel="import" href="~/Content/components/polymer/polymer.html" />
+<link rel="import" href="~/Content/components/xenon-querystring/xenon-querystring.html" />
+<link rel="import" href="~/Content/components/krypton-entity/krypton-entity.html" />
+<link rel="import" href="~/Content/components/xenon-layout/xenon-section.html" />
+<link rel="import" href="~/Content/components/xenon-photo-card/xenon-photo-card.html" />
+<link rel="import" href="~/Content/components/xenon-layout/xenon-field-group.html" />
+<link rel="import" href="~/Content/components/paper-input/paper-input.html" />
+<link rel="import" href="~/Content/components/paper-button/paper-button.html" />
+<dom-module id="create-controller">
+    <template>
+        <krypton-entity id="krypton"
+                        base-url="/api/"
+                        loading="{{loading}}">
+        </krypton-entity>
+        <xenon-section>
+            <xenon-photo-card heading="Create <#= ViewDataTypeShortName #>s" loading="{{loading}}">
+                <main>
+                    <xenon-field-group>
+                     <#                        IEnumerable<PropertyMetadata> properties = ModelMetadata.Properties;                        foreach (PropertyMetadata property in properties) {
+                        if (property.Scaffold && !property.IsPrimaryKey && !property.IsForeignKey) {
+                    #>
+                    <#
+                        if (property.IsAssociation && GetRelatedModelMetadata(property) == null) continue;                        var propName = GetValueExpression(property).Substring(0,1).ToLower()  +  GetValueExpression(property).Substring(1);
+                    #>
+                    
+                        <paper-input label="<#= GetValueExpression(property)#>" value="{{item.<#= propName #>}}"></paper-input>
+                   
+                    <#
+                        }
+                    }
+                    #>
+                    </xenon-field-group>
+                   
+                </main>
+                    <buttons>
+                        <spacer></spacer>
+                        <paper-button on-click="_cancel">cancel</paper-button>
+                        <paper-button class="primary" on-click="_create<#= ViewDataTypeShortName #>s">save</paper-button>
+                    </buttons>
+            </xenon-photo-card>
+        </xenon-section>
+    </template>
+    <script>
+            HTMLImports.whenReady(function () {
+                Polymer({
+                    is: "create-controller",
+                    properties: {
+                        item: { type: Object, notify: true, value: {}},
+                    },
+                    listeners: {
+                       "krypton-create": "_returnToIndex"
+                    },
+                    _create<#= ViewDataTypeShortName #>s: function () {
+                        this.$.krypton.item = this.item;
+                        this.$.krypton.createUrl = "/api/<#= ViewDataTypeShortName #>s/Create";
+                        this.$.krypton.createItem();
+                    },
+                    _returnToIndex: function () {
+                        window.location.href = "/<#= ViewDataTypeShortName #>s/Index";
+                    },
+                    _cancel: function () {
+                        window.location.href = "/<#= ViewDataTypeShortName #>s/Index";
+                    }
+                });
+            });
+    </script>
+</dom-module>
+<create-controller><create-controller>
+<#@ include file="ModelMetadataFunctions.cs.include.t4" #>
