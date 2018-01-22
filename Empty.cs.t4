@@ -2,7 +2,7 @@
 <#@ output extension=".cshtml" #>
 <#@ include file="Imports.include.t4" #>
 <#
-    PushIndent("    ");
+    PushIndent("");
 #>
 
 <link rel="import" href="~/Content/components/polymer/polymer.html" />

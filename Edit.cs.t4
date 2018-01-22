@@ -64,6 +64,9 @@ bool isControlHtmlAttributesSupported = MvcVersion >= requiredMvcVersion;
                     /* This is an example property */
                     id: { type: String, notify: true, observer: "_initRequest" },
                     item: { type: Object, notify: true, observer: "_setItem" },
+                }, 
+                 listeners:{
+                    "krypton-update":"_cancel"
                 },
                 _setItem: function (item) {
                     this.set("item", item);
