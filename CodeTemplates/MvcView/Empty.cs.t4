@@ -1,0 +1,46 @@
+﻿<#@ template language="C#" HostSpecific="True" #>
+<#@ output extension=".cshtml" #>
+<#@ include file="Imports.include.t4" #>
+<#
+    PushIndent("");
+#>
+
+<link rel="import" href="~/Content/components/polymer/polymer.html" />
+<link rel="import" href="../xenon-layout/xenon-section.html" />
+<link rel="import" href="../xenon-photo-card/xenon-photo-card.html" />
+<link rel="import" href="../xenon-layout/xenon-field-group.html" />
+<link rel="import" href="../paper-input/paper-input.html" />
+<link rel="import" href="../paper-button/paper-button.html" />
+<dom-module id="page-controller">
+    <template>
+        <xenon-section>
+            <xenon-photo-card heading="">
+                <main>
+                <xenon-field-group>
+                    <paper-input></paper-input>
+                </xenon-field-group>
+                </main>
+                    <buttons>
+                        <spacer></spacer>
+                        <paper-button >cancel</paper-button>
+                        <paper-button class="primary">save</paper-button>
+                    </buttons>
+            </xenon-photo-card>
+        </xenon-section>
+    </template>
+    <script>
+        HTMLImports.whenReady(function () {
+            Polymer({
+                is: "page-controller",
+                properties: {
+                    /* This is an example property */
+                    item: { type: Object, notify: true },
+                },
+                
+            });
+        });
+    </script>
+</dom-module>
+<page-controller></foo-controller>
+
+
